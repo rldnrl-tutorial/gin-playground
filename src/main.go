@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"gin-playground/src/controller"
+	"gin-playground/src/service"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 )
@@ -43,14 +45,31 @@ func PathParameter(c *gin.Context) {
 	})
 }
 
+var (
+	videoService    service.VideoService       = service.New()
+	videoController controller.VideoController = controller.New(videoService)
+)
+
+func GetVideo(ctx *gin.Context) {
+	ctx.JSON(200, videoController.FindAll())
+	videoController.FindAll()
+}
+
+func SaveVideos(ctx *gin.Context) {
+	ctx.JSON(200, videoController.Save(ctx))
+}
+
 func main() {
 	fmt.Println("Hello World")
 
-	r := gin.Default()
-	r.GET("/", HomePage)
-	r.POST("/", PostHomePage)
-	r.GET("/query", QueryStrings)
-	r.GET("/path/:name/:age", PathParameter)
+	server := gin.Default()
+	server.GET("/", HomePage)
+	server.POST("/", PostHomePage)
+	server.GET("/query", QueryStrings)
+	server.GET("/path/:name/:age", PathParameter)
 
-	r.Run()
+	server.GET("/videos", GetVideo)
+	server.POST("/video", SaveVideos)
+
+	server.Run()
 }
